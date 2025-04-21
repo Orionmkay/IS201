@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Slither.io Style Snake Game</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #111;
+      font-family: sans-serif;
+      color: white;
+      text-align: center;
+    }
+    canvas {
+      display: block;
+      margin: 0 auto;
+      background-color: #222;
+    }
+    #overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas"></canvas>
+  <div id="overlay">
+    <h1 id="gameStatus">Snake Game</h1>
+    <button id="startBtn">Start Game</button>
+    <button id="restartBtn" style="display:none">Restart Game</button>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const overlay = document.getElementById("overlay");
+    const startBtn = document.getElementById("startBtn");
+    const restartBtn = document.getElementById("restartBtn");
+    const gameStatus = document.getElementById("gameStatus");
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let snake, snakeLength, speed, direction, mouse, food, alive, running;
+
+    function resetGame() {
+      snake = [{ x: 300, y: 300 }];
+      snakeLength = 10;
+      speed = 3;
+      direction = { x: 1, y: 0 };
+      mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+      food = createFood();
+      alive = true;
+      running = true;
+    }
+
+    window.addEventListener("mousemove", (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    });
+
+    function createFood() {
+      return {
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: 10 + Math.random() * 10,
+      };
+    }
+
+    function update() {
+      if (!alive) {
+        running = false;
+        return;
+      }
+
+      let head = snake[snake.length - 1];
+      let angle = Math.atan2(mouse.y - head.y, mouse.x - head.x);
+      let newHead = {
+        x: head.x + Math.cos(angle) * speed,
+        y: head.y + Math.sin(angle) * speed,
+      };
+
+      snake.push(newHead);
+      while (snake.length > snakeLength) {
+        snake.shift();
+      }
+
+      // Collision with self
+      for (let i = 0; i < snake.length - 10; i++) {
+        if (Math.hypot(newHead.x - snake[i].x, newHead.y - snake[i].y) < 10) {
+          alive = false;
+          gameStatus.innerText = "Game Over";
+          restartBtn.style.display = "inline-block";
+          overlay.style.display = "flex";
+          return;
+        }
+      }
+
+      // Collision with wall
+      if (
+        newHead.x < 0 || newHead.x > canvas.width ||
+        newHead.y < 0 || newHead.y > canvas.height
+      ) {
+        alive = false;
+        gameStatus.innerText = "Game Over";
+        restartBtn.style.display = "inline-block";
+        overlay.style.display = "flex";
+        return;
+      }
+
+      // Eat food
+      if (Math.hypot(food.x - newHead.x, food.y - newHead.y) < food.size + 5) {
+        snakeLength += 5;
+        food = createFood();
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (!alive) return;
+
+      // Draw food
+      ctx.fillStyle = "lime";
+      ctx.beginPath();
+      ctx.arc(food.x, food.y, food.size, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Draw snake
+      for (let i = 0; i < snake.length; i++) {
+        let segment = snake[i];
+        ctx.fillStyle = `hsl(${(i / snake.length) * 360}, 100%, 50%)`;
+        ctx.beginPath();
+        ctx.arc(segment.x, segment.y, 10, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function gameLoop() {
+      if (running) {
+        update();
+        draw();
+        requestAnimationFrame(gameLoop);
+      }
+    }
+
+    startBtn.onclick = () => {
+      resetGame();
+      overlay.style.display = "none";
+      requestAnimationFrame(gameLoop);
+    };
+
+    restartBtn.onclick = () => {
+      resetGame();
+      gameStatus.innerText = "Snake Game";
+      restartBtn.style.display = "none";
+      overlay.style.display = "none";
+      requestAnimationFrame(gameLoop);
+    };
+  </script>
+</body>
+</html>

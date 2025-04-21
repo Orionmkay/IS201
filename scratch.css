@@ -1,0 +1,54 @@
+/* You also need to link to (and apply) a stylesheet that you have created from scratch. This stylesheet should include:
+At least four style definitions (it is possible you will have many more than four styles)
+Styles that specify font color
+Styles that specify font family
+At least three divs for positioning and styling blocks of content in the HTML page */
+
+.common{
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body{ font-family: Arial, Helvetica, sans-serif;
+    color: black;
+    margin: 0;
+    height: 100vh;
+}
+h1{
+    color:rgb(42, 104, 165);
+}
+
+.header{
+    height: 100px;
+    background-color: black;
+    color: white;
+    line-height: 100px;
+    text-align: center;
+}
+
+.mainbody{
+    background-color: blue;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;         
+    padding: 20px;
+}
+
+ul, ol {
+    margin: 0;
+    padding: 0;
+    list-style-position: inside; 
+}
+
+
+.footer{
+    background-color: black;
+    color: white;
+    position: fixed;
+    bottom: 0px;
+    left: 1px;
+    right: 1px;
+    height: 25px;
+    padding-top: 15px;
+}
